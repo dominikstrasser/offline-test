@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
+
+import { } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,21 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+
+  public status = 'online';
+
+  constructor(private zone: NgZone) {
+
+
+    window.addEventListener('online', this.updateOnlineStatus.bind(this));
+    window.addEventListener('offline', this.updateOnlineStatus.bind(this));
+
+    this.updateOnlineStatus();
+
+
+  }
+
+  updateOnlineStatus() {
+      this.status = navigator.onLine ? 'online' : 'offline';
+  }
 }
