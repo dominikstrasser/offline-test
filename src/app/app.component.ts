@@ -1,6 +1,8 @@
 import { Component, NgZone } from '@angular/core';
 
-import { } from '@angular/service-worker';
+import { SwPush, SwUpdate } from '@angular/service-worker';
+
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +14,14 @@ export class AppComponent {
 
   public status = 'online';
 
-  constructor(private zone: NgZone) {
+  public isPushEnabled = false;
+
+  constructor(
+    private zone: NgZone,
+    private swPush: SwPush,
+    private swUpdate: SwUpdate,
+    private matSnackBar: MatSnackBar
+  ) {
 
 
     window.addEventListener('online', this.updateOnlineStatus.bind(this));
@@ -20,10 +29,28 @@ export class AppComponent {
 
     this.updateOnlineStatus();
 
+    setTimeout(() => {
+      this.showSnackbar('test');
+    }, 3000);
 
   }
 
+  private showSnackbar(text: string) {
+    this.matSnackBar.open(text, null, { duration: 3000 });
+  }
+
+  private async listenForPush() {
+    this.isPushEnabled = this.swPush.isEnabled;
+
+    if (this.isPushEnabled) {
+      // const sub = await this.swPush.requestSubscription({ serverPublicKey: 'test' })
+      this.swPush.messages.subscribe((msg) => {
+        console.log(msg);
+      });
+    }
+  }
+
   updateOnlineStatus() {
-      this.status = navigator.onLine ? 'online' : 'offline';
+    this.status = navigator.onLine ? 'online' : 'offline';
   }
 }
